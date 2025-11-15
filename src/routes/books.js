@@ -161,8 +161,27 @@ router.post("/", async (req, res, next) => {
  */
 router.put("/:id", async (req, res, next) => {
   try {
-    // Ignore _id if it comes in the body
-    const { _id, ...updates } = req.body;
+    // Destructure and ignore _id if sent
+    const { _id, title, authorId, price, publishedYear, genres, inStock, rating } =
+      req.body;
+
+    // Require the same fields as POST for a full PUT
+    if (!title || !authorId || price === undefined || publishedYear === undefined) {
+      res.status(400);
+      throw new Error(
+        "title, authorId, price, and publishedYear are required for PUT"
+      );
+    }
+
+    const updates = {
+      title,
+      authorId,
+      price,
+      publishedYear,
+      genres,
+      inStock,
+      rating
+    };
 
     const book = await Book.findByIdAndUpdate(req.params.id, updates, {
       new: true,
@@ -179,6 +198,7 @@ router.put("/:id", async (req, res, next) => {
     next(err);
   }
 });
+
 
 
 /**

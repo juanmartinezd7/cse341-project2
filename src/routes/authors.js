@@ -141,7 +141,15 @@ router.post("/", async (req, res, next) => {
  */
 router.put("/:id", async (req, res, next) => {
   try {
-    const updates = req.body;
+    const { _id, name, bio, website, country } = req.body;
+
+    if (!name) {
+      res.status(400);
+      throw new Error("name is required for PUT");
+    }
+
+    const updates = { name, bio, website, country };
+
     const author = await Author.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true
@@ -157,6 +165,7 @@ router.put("/:id", async (req, res, next) => {
     next(err);
   }
 });
+
 
 /**
  * @swagger
