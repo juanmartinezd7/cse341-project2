@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Alice Johnson",
+    "bio": "Alice is a software engineer specializing in Node.js and backend systems.",
+    "website": "https://alicejohnson.dev",
+    "country": "USA"
+  },
+  {
+    "name": "Carlos Martinez",
+    "bio": "Carlos writes about databases, scaling, and data engineering.",
+    "website": "https://carlosmartinez.io",
+    "country": "Spain"
+  },
+  {
+    "name": "Linda Zhao",
+    "bio": "Linda is a full-stack developer and technical writer.",
+    "website": "https://lindazhao.dev",
+    "country": "Canada"
+  }
+]
