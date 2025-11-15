@@ -8,7 +8,7 @@ const options = {
       title: "Bookstore API",
       version: "1.0.0",
       description:
-        "API for managing books, authors, and OAuth-based users in a simple bookstore."
+        "API for managing books, and authors in a simple bookstore."
     },
     servers: [
       {

@@ -25,8 +25,6 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Optional: ignore favicon requests to avoid noisy 404 logs
-//app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // Session (for OAuth)
 app.use(
