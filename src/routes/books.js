@@ -9,6 +9,8 @@
 
 const express = require("express");
 const Book = require("../models/book");
+const requireAuth = require("../middleware/requireAuth");
+const { validateBook } = require("../middleware/validation");
 
 const router = express.Router();
 
@@ -18,18 +20,8 @@ const router = express.Router();
  *   get:
  *     summary: Get all books
  *     tags: [Books]
- *     responses:
- *       200:
- *         description: List of books
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Book'
- *       500:
- *         description: Server error
  */
+// GET /api/books - list all books (public)
 router.get("/", async (req, res, next) => {
   try {
     const books = await Book.find().populate("authorId", "name");
@@ -45,25 +37,8 @@ router.get("/", async (req, res, next) => {
  *   get:
  *     summary: Get a book by ID
  *     tags: [Books]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: MongoDB ObjectId of the book
- *     responses:
- *       200:
- *         description: Book found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Book'
- *       404:
- *         description: Book not found
- *       500:
- *         description: Server error
  */
+// GET /api/books/:id (public)
 router.get("/:id", async (req, res, next) => {
   try {
     const book = await Book.findById(req.params.id).populate(
@@ -84,37 +59,21 @@ router.get("/:id", async (req, res, next) => {
  * @swagger
  * /api/books:
  *   post:
- *     summary: Create a new book
+ *     summary: Create a new book (requires auth)
  *     tags: [Books]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Book'
- *     responses:
- *       201:
- *         description: Book created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Book'
- *       400:
- *         description: Validation error
- *       500:
- *         description: Server error
  */
-router.post("/", async (req, res, next) => {
+// POST /api/books (protected + validated)
+router.post("/", requireAuth, validateBook, async (req, res, next) => {
   try {
-    const { title, authorId, price, publishedYear, genres, inStock, rating } =
-      req.body;
-
-    if (!title || !authorId || !price || !publishedYear) {
-      res.status(400);
-      throw new Error(
-        "title, authorId, price, and publishedYear are required"
-      );
-    }
+    const {
+      title,
+      authorId,
+      price,
+      publishedYear,
+      genres,
+      inStock,
+      rating
+    } = req.body;
 
     const book = await Book.create({
       title,
@@ -136,52 +95,13 @@ router.post("/", async (req, res, next) => {
  * @swagger
  * /api/books/{id}:
  *   put:
- *     summary: Update a book
+ *     summary: Update a book (requires auth)
  *     tags: [Books]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: MongoDB ObjectId of the book
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Book'
- *     responses:
- *       200:
- *         description: Book updated
- *       404:
- *         description: Book not found
- *       500:
- *         description: Server error
  */
-router.put("/:id", async (req, res, next) => {
+// PUT /api/books/:id (protected + validated)
+router.put("/:id", requireAuth, validateBook, async (req, res, next) => {
   try {
-    // Destructure and ignore _id if sent
-    const { _id, title, authorId, price, publishedYear, genres, inStock, rating } =
-      req.body;
-
-    // Require the same fields as POST for a full PUT
-    if (!title || !authorId || price === undefined || publishedYear === undefined) {
-      res.status(400);
-      throw new Error(
-        "title, authorId, price, and publishedYear are required for PUT"
-      );
-    }
-
-    const updates = {
-      title,
-      authorId,
-      price,
-      publishedYear,
-      genres,
-      inStock,
-      rating
-    };
+    const { _id, ...updates } = req.body;
 
     const book = await Book.findByIdAndUpdate(req.params.id, updates, {
       new: true,
@@ -199,30 +119,15 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-
-
 /**
  * @swagger
  * /api/books/{id}:
  *   delete:
- *     summary: Delete a book
+ *     summary: Delete a book (requires auth)
  *     tags: [Books]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: MongoDB ObjectId of the book
- *     responses:
- *       200:
- *         description: Book deleted
- *       404:
- *         description: Book not found
- *       500:
- *         description: Server error
  */
-router.delete("/:id", async (req, res, next) => {
+// DELETE /api/books/:id (protected)
+router.delete("/:id", requireAuth, async (req, res, next) => {
   try {
     const book = await Book.findByIdAndDelete(req.params.id);
 

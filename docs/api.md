@@ -1,41 +1,68 @@
-# Bookstore API
+# Bookstore API – Documentation
 
-Base URL (local): `http://localhost:4000`
+Base URL (local):  
+`http://localhost:4000`
 
-## Authentication (OAuth)
-
-### `GET /auth/google`
-Starts Google OAuth login flow.
-
-### `GET /auth/google/callback`
-Callback URL for Google OAuth. On success returns logged in user JSON.
-
-### `GET /auth/me`
-Returns the currently logged-in user.
-
-### `GET /auth/logout`
-Logs out the current session.
+Deployed URL (Render):  
+`https://bookstore-api-qydz.onrender.com`
 
 ---
 
-## Books
+## Overview
 
-Base path: `/api/books`
+The Bookstore API is a RESTful web service built with:
 
-### GET `/api/books`
-Returns all books.
+- Node.js & Express  
+- MongoDB & Mongoose  
+- OAuth authentication with GitHub  
+- Swagger (OpenAPI) for interactive documentation  
 
-**Response 200:**
+The API exposes endpoints to manage **Books** and **Authors**, with:
+
+- Full CRUD (GET, POST, PUT, DELETE)  
+- Data validation on POST and PUT  
+- Centralized error handling  
+- Authentication required for modifying data  
+
+Swagger UI (interactive docs) is available at:
+
+- Local: `http://localhost:4000/api-docs`  
+- Deployed: `https://bookstore-api-qydz.onrender.com/api-docs`
+
+---
+
+## Authentication (OAuth with GitHub)
+
+The API uses **GitHub OAuth** for authentication via sessions.  
+Once a user logs in with GitHub, they can access **protected routes** (POST, PUT, DELETE).
+
+### `GET /auth/github`
+
+Starts the GitHub OAuth flow.  
+Redirects the user to GitHub to log in and authorize the application.
+
+---
+
+### `GET /auth/github/callback`
+
+Callback URL configured in the GitHub OAuth app.  
+GitHub redirects the user here after login.
+
+On success, the server creates/loads a user in MongoDB and authenticates the session.
+
+**Example 200 Response:**
+
 ```json
-[
-  {
-    "_id": "ObjectId",
-    "title": "...",
-    "authorId": { "_id": "ObjectId", "name": "..." },
-    "price": 29.99,
-    "publishedYear": 2023,
-    "genres": ["Programming"],
-    "inStock": true,
-    "rating": 4.5
+{
+  "message": "Logged in with GitHub",
+  "user": {
+    "id": "671a1234abcd56789eee1234",
+    "githubId": "12345678",
+    "username": "yourusername",
+    "displayName": "Your Name",
+    "email": "you@example.com"
   }
-]
+}
+
+
+

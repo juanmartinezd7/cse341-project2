@@ -8,13 +8,23 @@ const options = {
       title: "Bookstore API",
       version: "1.0.0",
       description:
-        "API for managing books, and authors in a simple bookstore."
+        "API for managing books, authors, and OAuth-based users in a simple bookstore."
     },
     servers: [
+      {
+        url: "http://localhost:{port}",
+        description: "Local server",
+        variables: {
+          port: {
+            default: "4000"
+          }
+        }
+      },
       {
         url: "https://bookstore-api-qydz.onrender.com",
         description: "Production (Render)"
       }
+
     ],
     components: {
       schemas: {

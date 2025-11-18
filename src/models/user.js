@@ -1,9 +1,10 @@
-//src/models/user.js
+// src/models/user.js
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    googleId: { type: String, required: true, unique: true },
+    githubId: { type: String, required: true, unique: true },
+    username: { type: String },
     displayName: { type: String },
     email: { type: String },
     avatar: { type: String }
@@ -12,3 +13,4 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("User", userSchema);
+

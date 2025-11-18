@@ -1,66 +1,35 @@
-//src/routes/auth.js
-
-///**
- //* @swagger
- //* tags:
- //*   name: Auth
- //*   description: OAuth-based authentication using Google
- //*/
-
+// src/routes/auth.js
 const express = require("express");
 const passport = require("passport");
 
 const router = express.Router();
 
-// Start Google OAuth flow
-///**
- //* @swagger
- //* /auth/google:
- //*   get:
- //*     summary: Start Google OAuth 2.0 login
- //*     tags: [Auth]
- //*     responses:
- //*       302:
- //*         description: Redirects to Google for authentication
- //*/
+/**
+ * Start GitHub OAuth flow
+ * GET /auth/github
+ */
 router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
-// OAuth callback
-///**
- //* @swagger
- //* /auth/google/callback:
- //*   get:
- //*     summary: Google OAuth callback
- //*     tags: [Auth]
- //*     responses:
- //*       200:
- //*         description: Logged in with Google
- //*         content:
- //*           application/json:
- //*             schema:
- //*               type: object
- //*               properties:
- //*                 message:
- //*                   type: string
- //*                 user:
- //*                   $ref: '#/components/schemas/User'
- //*       401:
- //*         description: Google authentication failed
- //*/
+/**
+ * GitHub OAuth callback
+ * GET /auth/github/callback
+ */
 router.get(
-  "/google/callback",
-  passport.authenticate("google", {
+  "/github/callback",
+  passport.authenticate("github", {
     failureRedirect: "/auth/failure"
   }),
   (req, res) => {
-    // Successful auth
+    // In a real app this might redirect to a frontend.
     res.json({
-      message: "Logged in with Google",
+      message: "Logged in with GitHub",
       user: {
         id: req.user._id,
+        githubId: req.user.githubId,
+        username: req.user.username,
         displayName: req.user.displayName,
         email: req.user.email
       }
@@ -68,45 +37,28 @@ router.get(
   }
 );
 
-//GET /auth/me
-///**
- //* @swagger
- //* /auth/me:
- //*   get:
- //*     summary: Get current authenticated user
- //*     tags: [Auth]
- //*     responses:
- //*       200:
- //*         description: Authenticated user
- //*         content:
- //*           application/json:
- //*             schema:
- //*               $ref: '#/components/schemas/User'
- //*       401:
- //*         description: Not authenticated
- //*/
+/**
+ * Return current authenticated user
+ * GET /auth/me
+ */
 router.get("/me", (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
+
   res.json({
     id: req.user._id,
+    githubId: req.user.githubId,
+    username: req.user.username,
     displayName: req.user.displayName,
     email: req.user.email
   });
 });
 
-//GET /auth/logout
-///**
- //* @swagger
- //* /auth/logout:
- //*   get:
- //*     summary: Logout current user
- //*     tags: [Auth]
- //*     responses:
- //*       200:
- //*         description: Logged out successfully
- //*/
+/**
+ * Logout
+ * GET /auth/logout
+ */
 router.get("/logout", (req, res, next) => {
   req.logout(function (err) {
     if (err) return next(err);
@@ -114,8 +66,12 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
+/**
+ * Auth failure
+ * GET /auth/failure
+ */
 router.get("/failure", (req, res) => {
-  res.status(401).json({ message: "Google authentication failed" });
+  res.status(401).json({ message: "GitHub authentication failed" });
 });
 
 module.exports = router;

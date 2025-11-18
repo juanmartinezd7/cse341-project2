@@ -1,6 +1,7 @@
 // src/config/passport.js
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
+// IMPORTANT: make sure the filename matches this case exactly: User.js
 const User = require("../models/user");
 
 passport.serializeUser((user, done) => {
@@ -16,28 +17,30 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL } =
+const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL } =
   process.env;
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_CALLBACK_URL) {
+if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET || !GITHUB_CALLBACK_URL) {
   console.warn(
-    "Google OAuth env vars missing; skipping GoogleStrategy registration."
+    "GitHub OAuth env vars missing; skipping GitHubStrategy registration."
   );
 } else {
   passport.use(
-    new GoogleStrategy(
+    new GitHubStrategy(
       {
-        clientID: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: GOOGLE_CALLBACK_URL
+        clientID: GITHUB_CLIENT_ID,
+        clientSecret: GITHUB_CLIENT_SECRET,
+        callbackURL: GITHUB_CALLBACK_URL,
+        scope: ["user:email"]
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          let user = await User.findOne({ googleId: profile.id });
+          let user = await User.findOne({ githubId: profile.id });
 
           if (!user) {
             user = await User.create({
-              googleId: profile.id,
+              githubId: profile.id,
+              username: profile.username,
               displayName: profile.displayName,
               email: profile.emails?.[0]?.value,
               avatar: profile.photos?.[0]?.value
@@ -54,3 +57,4 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_CALLBACK_URL) {
 }
 
 module.exports = passport;
+
