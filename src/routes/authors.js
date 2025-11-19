@@ -8,7 +8,7 @@
  */
 
 const express = require("express");
-const Author = require("../models/Author");
+const Author = require("../models/author");
 const requireAuth = require("../middleware/requireAuth");
 const { validateAuthor } = require("../middleware/validation");
 
