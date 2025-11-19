@@ -17,42 +17,25 @@ router.get(
  * GET /auth/github/callback
  * GitHub OAuth callback
  */
-router.get("/github/callback", (req, res, next) => {
-  passport.authenticate("github", (err, user, info) => {
-    if (err) {
-      console.error("GitHub OAuth error:", err);
-      return res
-        .status(500)
-        .json({ message: "GitHub OAuth failed", error: "oauth_error" });
-    }
-
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "GitHub authentication failed" });
-    }
-
-    req.logIn(user, (loginErr) => {
-      if (loginErr) {
-        console.error("Login error after GitHub auth:", loginErr);
-        return res
-          .status(500)
-          .json({ message: "Login failed", error: "login_error" });
+router.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "/auth/failure"
+  }),
+  (req, res) => {
+    // Successful authentication, send user JSON
+    res.json({
+      message: "Logged in with GitHub",
+      user: {
+        id: req.user._id,
+        githubId: req.user.githubId,
+        username: req.user.username,
+        displayName: req.user.displayName,
+        email: req.user.email
       }
-
-      return res.json({
-        message: "Logged in with GitHub",
-        user: {
-          id: user._id,
-          githubId: user.githubId,
-          username: user.username,
-          displayName: user.displayName,
-          email: user.email
-        }
-      });
     });
-  })(req, res, next);
-});
+  }
+);
 
 /**
  * GET /auth/me
@@ -83,6 +66,10 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
+/**
+ * GET /auth/failure
+ * OAuth failure route
+ */
 router.get("/failure", (req, res) => {
   res.status(401).json({ message: "GitHub authentication failed" });
 });
