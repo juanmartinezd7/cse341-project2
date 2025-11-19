@@ -104,19 +104,13 @@ router.get("/:id", async (req, res, next) => {
  *     responses:
  *       201:
  *         description: Book created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Book'
  *       400:
  *         description: Validation error
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
-
-// POST /api/books (protected + validated)
 router.post("/", requireAuth, validateBook, async (req, res, next) => {
   try {
     const {
@@ -129,7 +123,8 @@ router.post("/", requireAuth, validateBook, async (req, res, next) => {
       rating
     } = req.body;
 
-    const book = await book.create({
+    // 👇 NOTE: Use the model `Book`, and a different variable name
+    const newBook = await book.create({
       title,
       authorId,
       price,
@@ -139,11 +134,12 @@ router.post("/", requireAuth, validateBook, async (req, res, next) => {
       rating
     });
 
-    res.status(201).json(book);
+    res.status(201).json(newBook);
   } catch (err) {
     next(err);
   }
 });
+
 
 /**
  * @swagger
@@ -155,9 +151,9 @@ router.post("/", requireAuth, validateBook, async (req, res, next) => {
  *       - in: path
  *         name: id
  *         required: true
- *         description: MongoDB ObjectId of the book
  *         schema:
  *           type: string
+ *         description: MongoDB ObjectId of the book
  *     requestBody:
  *       required: true
  *       content:
@@ -167,40 +163,37 @@ router.post("/", requireAuth, validateBook, async (req, res, next) => {
  *     responses:
  *       200:
  *         description: Book updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Book'
  *       400:
  *         description: Validation error
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       404:
  *         description: Book not found
  *       500:
  *         description: Server error
  */
-
-// PUT /api/books/:id (protected + validated)
 router.put("/:id", requireAuth, validateBook, async (req, res, next) => {
   try {
     const { _id, ...updates } = req.body;
 
-    const book = await book.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true
-    });
+    // 👇 Again: use `Book` model and a different variable name
+    const updatedBook = await book.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    );
 
-    if (!book) {
+    if (!updatedBook) {
       res.status(404);
       throw new Error("Book not found");
     }
 
-    res.json(book);
+    res.json(updatedBook);
   } catch (err) {
     next(err);
   }
 });
+
 
 /**
  * @swagger
@@ -212,34 +205,24 @@ router.put("/:id", requireAuth, validateBook, async (req, res, next) => {
  *       - in: path
  *         name: id
  *         required: true
- *         description: MongoDB ObjectId of the book
  *         schema:
  *           type: string
+ *         description: MongoDB ObjectId of the book
  *     responses:
  *       200:
  *         description: Book deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Book deleted
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       404:
  *         description: Book not found
  *       500:
  *         description: Server error
  */
-
-// DELETE /api/books/:id (protected)
 router.delete("/:id", requireAuth, async (req, res, next) => {
   try {
-    const book = await book.findByIdAndDelete(req.params.id);
+    const deletedBook = await book.findByIdAndDelete(req.params.id);
 
-    if (!book) {
+    if (!deletedBook) {
       res.status(404);
       throw new Error("Book not found");
     }
@@ -249,6 +232,5 @@ router.delete("/:id", requireAuth, async (req, res, next) => {
     next(err);
   }
 });
-
 
 module.exports = router;
