@@ -8,7 +8,7 @@
  */
 
 const express = require("express");
-const author = require("../models/author");
+const Author = require("../models/author");
 const requireAuth = require("../middleware/requireAuth");
 const { validateAuthor } = require("../middleware/validation");
 
@@ -32,17 +32,15 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-
-// GET /api/authors (public)
 router.get("/", async (req, res, next) => {
   try {
+    console.log("GET /api/authors hit from", req.get("User-Agent"));
     const authors = await author.find();
     res.json(authors);
   } catch (err) {
     next(err);
   }
 });
-
 
 /**
  * @swagger
@@ -69,20 +67,16 @@ router.get("/", async (req, res, next) => {
  *       500:
  *         description: Server error
  */
-
-// GET /api/authors/:id (public)
 router.get("/:id", async (req, res, next) => {
   try {
-    const foundAuthor = await author.findById(req.params.id).populate(
-      "name"
-    );
+    const author = await author.findById(req.params.id);
 
-    if (!foundAuthor) {
+    if (!author) {
       res.status(404);
       throw new Error("Author not found");
     }
 
-    res.json(foundAuthor);
+    res.json(author);
   } catch (err) {
     next(err);
   }
@@ -110,18 +104,22 @@ router.get("/:id", async (req, res, next) => {
  *       400:
  *         description: Validation error
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
-
-// POST /api/authors (protected + validated)
 router.post("/", requireAuth, validateAuthor, async (req, res, next) => {
   try {
     const { name, bio, website, country } = req.body;
 
-    const author = await author.create({ name, bio, website, country });
-    res.status(201).json(author);
+    const newAuthor = await author.create({
+      name,
+      bio,
+      website,
+      country
+    });
+
+    res.status(201).json(newAuthor);
   } catch (err) {
     next(err);
   }
@@ -137,7 +135,7 @@ router.post("/", requireAuth, validateAuthor, async (req, res, next) => {
  *       - in: path
  *         name: id
  *         required: true
- *         description: MongoDB ObjectId of the book
+ *         description: MongoDB ObjectId of the author
  *         schema:
  *           type: string
  *     requestBody:
@@ -156,29 +154,28 @@ router.post("/", requireAuth, validateAuthor, async (req, res, next) => {
  *       400:
  *         description: Validation error
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       404:
- *         description: Book not found
+ *         description: Author not found
  *       500:
  *         description: Server error
  */
-
-// PUT /api/authors/:id (protected + validated)
 router.put("/:id", requireAuth, validateAuthor, async (req, res, next) => {
   try {
     const { _id, ...updates } = req.body;
 
-    const author = await author.findByIdAndUpdate(req.params.id, updates, {
-      new: true,
-      runValidators: true
-    });
+    const updatedAuthor = await author.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    );
 
-    if (!author) {
+    if (!updatedAuthor) {
       res.status(404);
       throw new Error("Author not found");
     }
 
-    res.json(author);
+    res.json(updatedAuthor);
   } catch (err) {
     next(err);
   }
@@ -209,19 +206,17 @@ router.put("/:id", requireAuth, validateAuthor, async (req, res, next) => {
  *                   type: string
  *                   example: Author deleted
  *       401:
- *         description: Unauthorized (not logged in)
+ *         description: Unauthorized
  *       404:
- *         description: Book not found
+ *         description: Author not found
  *       500:
  *         description: Server error
  */
-
-// DELETE /api/authors/:id (protected)
 router.delete("/:id", requireAuth, async (req, res, next) => {
   try {
-    const author = await author.findByIdAndDelete(req.params.id);
+    const deletedAuthor = await author.findByIdAndDelete(req.params.id);
 
-    if (!author) {
+    if (!deletedAuthor) {
       res.status(404);
       throw new Error("Author not found");
     }
@@ -231,6 +226,5 @@ router.delete("/:id", requireAuth, async (req, res, next) => {
     next(err);
   }
 });
-
 
 module.exports = router;
