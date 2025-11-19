@@ -1,8 +1,7 @@
 // src/config/passport.js
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
-// IMPORTANT: make sure the filename matches this case exactly: User.js
-const User = require("../models/user");
+const user = require("../models/user");
 
 passport.serializeUser((user, done) => {
   done(null, user.id); // MongoDB _id

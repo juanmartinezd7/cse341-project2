@@ -12,15 +12,6 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:{port}",
-        description: "Local server",
-        variables: {
-          port: {
-            default: "4000"
-          }
-        }
-      },
-      {
         url: "https://bookstore-api-qydz.onrender.com",
         description: "Production (Render)"
       }
