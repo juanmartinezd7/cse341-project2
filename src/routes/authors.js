@@ -8,7 +8,7 @@
  */
 
 const express = require("express");
-const Author = require("../models/author");
+const Author = require("../models/Author");
 const requireAuth = require("../middleware/requireAuth");
 const { validateAuthor } = require("../middleware/validation");
 
@@ -34,8 +34,8 @@ const router = express.Router();
  */
 router.get("/", async (req, res, next) => {
   try {
-    console.log("GET /api/author hit from", req.get("User-Agent"));
-    const authors = await author.find();
+    console.log("👉 GET /api/authors hit from", req.get("User-Agent"));
+    const authors = await Author.find();
     res.json(authors);
   } catch (err) {
     next(err);
@@ -69,7 +69,7 @@ router.get("/", async (req, res, next) => {
  */
 router.get("/:id", async (req, res, next) => {
   try {
-    const author = await author.findById(req.params.id);
+    const author = await Author.findById(req.params.id);
 
     if (!author) {
       res.status(404);
@@ -112,7 +112,7 @@ router.post("/", requireAuth, validateAuthor, async (req, res, next) => {
   try {
     const { name, bio, website, country } = req.body;
 
-    const newAuthor = await author.create({
+    const newAuthor = await Author.create({
       name,
       bio,
       website,
@@ -164,7 +164,7 @@ router.put("/:id", requireAuth, validateAuthor, async (req, res, next) => {
   try {
     const { _id, ...updates } = req.body;
 
-    const updatedAuthor = await author.findByIdAndUpdate(
+    const updatedAuthor = await Author.findByIdAndUpdate(
       req.params.id,
       updates,
       { new: true, runValidators: true }
@@ -214,7 +214,7 @@ router.put("/:id", requireAuth, validateAuthor, async (req, res, next) => {
  */
 router.delete("/:id", requireAuth, async (req, res, next) => {
   try {
-    const deletedAuthor = await author.findByIdAndDelete(req.params.id);
+    const deletedAuthor = await Author.findByIdAndDelete(req.params.id);
 
     if (!deletedAuthor) {
       res.status(404);
