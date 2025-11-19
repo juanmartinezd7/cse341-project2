@@ -34,7 +34,7 @@ const router = express.Router();
  */
 router.get("/", async (req, res, next) => {
   try {
-    console.log("GET /api/authors hit from", req.get("User-Agent"));
+    console.log("GET /api/author hit from", req.get("User-Agent"));
     const authors = await author.find();
     res.json(authors);
   } catch (err) {
