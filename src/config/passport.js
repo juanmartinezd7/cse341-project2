@@ -1,7 +1,7 @@
 // src/config/passport.js
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
-const User = require("../models/User"); // <-- this must match the actual file name
+const User = require("../models/User"); 
 
 passport.serializeUser((user, done) => {
   done(null, user.id); // MongoDB _id
@@ -21,7 +21,7 @@ const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL } =
 
 if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET || !GITHUB_CALLBACK_URL) {
   console.warn(
-    "⚠️ GitHub OAuth env vars missing; skipping GitHubStrategy registration."
+    "GitHub OAuth env vars missing; skipping GitHubStrategy registration."
   );
 } else {
   passport.use(

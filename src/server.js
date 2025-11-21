@@ -4,7 +4,7 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
 const connectDB = require("./config/db");
-require("./config/passport"); // register passport strategies
+require("./config/passport"); 
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const swaggerUi = require("swagger-ui-express");
@@ -39,7 +39,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Swagger UI (after middleware is totally fine)
+// Swagger UI 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Root route
